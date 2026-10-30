@@ -1,0 +1,1 @@
+{ "status": "success", "message": "Success", "data": { "token": "sample.jwt.token" } }

@@ -1,0 +1,21 @@
+{
+  "status": "success",
+  "message": "Success",
+  "data": {
+    "page": 2,
+    "limit": 100,
+    "count": 3,
+    "nextPage": null,
+    "data": [
+      {
+        "offer_id": 303,
+        "offer_name": "Zalora PH",
+        "categories": "Fashion",
+        "offer_country": "Philippines",
+        "offer_status": "Active",
+        "logo": "",
+        "tracking_link": "https://invol.co/aff_m?offer_id=303&aff_id=1"
+      }
+    ]
+  }
+}

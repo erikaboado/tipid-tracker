@@ -1,0 +1,92 @@
+{
+  "status": "success",
+  "message": "Success",
+  "data": {
+    "page": 1,
+    "limit": 100,
+    "count": 7,
+    "nextPage": null,
+    "data": [
+      {
+        "campaign_banner_id": 9001,
+        "offer_id": 101,
+        "offer_name": "Lazada PH (CPS)",
+        "title": "11.11 Mega Sale: extra ₱150 off",
+        "voucher_code": "LAZ1111",
+        "start_date": "2026-11-01 00:00:00",
+        "end_date": "2026-11-11 23:59:59",
+        "banner_url": "https://img.example-cdn.com/banners/laz-1111.jpg",
+        "tracking_link": "https://invol.co/cl1234",
+        "category": "Electronics",
+        "country": "Philippines"
+      },
+      {
+        "campaign_banner_id": 9002,
+        "offer_id": 202,
+        "offer_name": "Klook PH",
+        "title": "Boracay hotel deals up to 30% off",
+        "voucher_code": "",
+        "start_date": "2026-10-25",
+        "end_date": "2026-11-15",
+        "valid_from": "2026-12-01",
+        "valid_until": "2027-03-31",
+        "banner_url": "https://img.example-cdn.com/banners/klook-bora.jpg",
+        "country": "Philippines"
+      },
+      {
+        "campaign_banner_id": 9003,
+        "offer_id": 303,
+        "offer_name": "Zalora PH",
+        "title": "",
+        "description": "Extra 20% off new arrivals",
+        "voucher_code": "ZALNEW20",
+        "start_date": "0000-00-00 00:00:00",
+        "end_date": "",
+        "banner_url": "",
+        "country": "Philippines"
+      },
+      {
+        "campaign_banner_id": 9004,
+        "offer_id": 101,
+        "title": "Old 10.10 sale",
+        "voucher_code": "LAZ1010",
+        "start_date": "2026-10-01",
+        "end_date": "2026-10-10",
+        "tracking_link": "https://invol.co/cl0000",
+        "country": "Philippines"
+      },
+      {
+        "campaign_banner_id": 9005,
+        "offer_id": 101,
+        "title": "Shop Lazada (generic banner)",
+        "voucher_code": "",
+        "start_date": "2024-01-01",
+        "end_date": "",
+        "tracking_link": "https://invol.co/cl5555",
+        "country": "Philippines"
+      },
+      {
+        "campaign_banner_id": 9006,
+        "offer_id": 999,
+        "offer_name": "Unknown Merchant",
+        "title": "Promo with no affiliate link",
+        "voucher_code": "NOLINK",
+        "end_date": "2026-12-31",
+        "country": "Philippines"
+      },
+      {
+        "campaign_banner_id": 9001,
+        "offer_id": 101,
+        "offer_name": "Lazada PH (CPS)",
+        "title": "11.11 Mega Sale: extra ₱150 off",
+        "voucher_code": "LAZ1111",
+        "start_date": "2026-11-01 00:00:00",
+        "end_date": "2026-11-11 23:59:59",
+        "banner_url": "https://img.example-cdn.com/banners/laz-1111.jpg",
+        "tracking_link": "https://invol.co/cl1234",
+        "category": "Electronics",
+        "country": "Philippines"
+      }
+    ]
+  }
+}

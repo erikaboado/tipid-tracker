@@ -6,7 +6,8 @@
     "dev": "vite",
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:functions": "deno test --allow-read --config supabase/functions/involve-asia-collector/deno.json supabase/functions/involve-asia-collector"
   },
   "repository": {
     "type": "git",

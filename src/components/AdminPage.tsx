@@ -1,13 +1,27 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import type { Category, SubmissionRow, SubmissionStatus } from '../types'
+import type { Category, Deal, SaleEvent, SubmissionRow, SubmissionStatus } from '../types'
 import { supabase } from '../lib/supabase'
 import { approveSubmission, fetchSubmissions, isAdmin, setSubmissionStatus } from '../lib/api'
 import { checkRanges } from '../lib/dates'
+import AdminDeals from './AdminDeals'
 
 const errorText = (e: unknown) => (e instanceof Error ? e.message : String(e))
 
-export default function AdminPage({ categories }: { categories: Category[] }) {
+type Section = 'deals' | 'submissions'
+
+export default function AdminPage({
+  categories,
+  deals,
+  events,
+  onDealsChanged,
+}: {
+  categories: Category[]
+  deals: Deal[]
+  events: SaleEvent[]
+  onDealsChanged: () => Promise<void>
+}) {
+  const [section, setSection] = useState<Section>('deals')
   const [session, setSession] = useState<Session | null>(null)
   const [checking, setChecking] = useState(true)
   const [admin, setAdmin] = useState<boolean | null>(null)
@@ -39,13 +53,25 @@ export default function AdminPage({ categories }: { categories: Category[] }) {
     <section className="admin">
       <div className="admin-head">
         <div>
-          <h2 className="section-title">Review submissions</h2>
+          <h2 className="section-title">Admin</h2>
           <p className="section-sub">Signed in as {session.user.email}</p>
         </div>
         <button type="button" className="ghost" onClick={() => supabase?.auth.signOut()}>Sign out</button>
       </div>
       {admin ? (
-        <Queue categories={categories} />
+        <>
+          <nav className="cats admin-tabs" aria-label="Admin">
+            <button type="button" className={section === 'deals' ? 'on' : ''} onClick={() => setSection('deals')}>Deals</button>
+            <button type="button" className={section === 'submissions' ? 'on' : ''} onClick={() => setSection('submissions')}>
+              Submissions
+            </button>
+          </nav>
+          {section === 'deals' ? (
+            <AdminDeals categories={categories} deals={deals} events={events} onChanged={onDealsChanged} />
+          ) : (
+            <Queue categories={categories} onApproved={onDealsChanged} />
+          )}
+        </>
       ) : (
         <p className="notice bad">This account is not an admin. Ask the site owner to add you to the admins list.</p>
       )}
@@ -97,7 +123,7 @@ const STATUSES: { key: SubmissionStatus; label: string }[] = [
   { key: 'rejected', label: 'Rejected' },
 ]
 
-function Queue({ categories }: { categories: Category[] }) {
+function Queue({ categories, onApproved }: { categories: Category[]; onApproved: () => Promise<void> }) {
   const [status, setStatus] = useState<SubmissionStatus>('pending')
   const [rows, setRows] = useState<SubmissionRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -131,7 +157,15 @@ function Queue({ categories }: { categories: Category[] }) {
       <div className="stack review-list">
         {rows.map((s) =>
           s.status === 'pending' ? (
-            <ReviewCard key={s.id} submission={s} categories={categories} onDone={() => remove(s.id)} />
+            <ReviewCard
+              key={s.id}
+              submission={s}
+              categories={categories}
+              onDone={(approved) => {
+                remove(s.id)
+                if (approved) onApproved()
+              }}
+            />
           ) : (
             <ReviewedCard key={s.id} submission={s} onDone={() => remove(s.id)} />
           ),
@@ -148,7 +182,7 @@ function ReviewCard({
 }: {
   submission: SubmissionRow
   categories: Category[]
-  onDone: () => void
+  onDone: (approved: boolean) => void
 }) {
   const [busy, setBusy] = useState<'approve' | 'reject' | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -187,7 +221,7 @@ function ReviewCard({
     setError(null)
     try {
       await approveSubmission(s.id, deal)
-      onDone()
+      onDone(true)
     } catch (err) {
       setError(errorText(err))
       setBusy(null)
@@ -199,7 +233,7 @@ function ReviewCard({
     setError(null)
     try {
       await setSubmissionStatus(s.id, 'rejected')
-      onDone()
+      onDone(false)
     } catch (err) {
       setError(errorText(err))
       setBusy(null)

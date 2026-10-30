@@ -217,3 +217,18 @@ button, input, select, textarea { font: inherit; color: inherit; }
   font-weight: 600; cursor: pointer;
 }
 .approve:disabled, .ghost:disabled { opacity: 0.6; cursor: default; }
+.admin-tabs { margin: 12px -16px 16px; }
+.admin-tabs button { font-weight: 700; }
+.admin-toolbar { margin-bottom: 14px; }
+.ghost.danger { color: var(--accent); }
+.ghost.small { padding: 6px 12px; font-size: 13px; }
+.admin-deals { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.admin-deal {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+}
+.admin-deal-body { display: flex; flex-direction: column; min-width: 0; }
+.admin-deal-body strong { overflow-wrap: anywhere; }
+.admin-deal-body span { color: var(--muted); font-size: 13px; }
+.admin-deal-actions { display: flex; gap: 6px; flex-shrink: 0; }
+@media (max-width: 560px) { .admin-deal { flex-direction: column; align-items: stretch; } }

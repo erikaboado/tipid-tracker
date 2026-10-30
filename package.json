@@ -4,6 +4,7 @@
   "description": "Tipid Tracker – all Philippine deals and promos in one place, sorted by promo dates.",
   "scripts": {
     "dev": "vite",
+    "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },

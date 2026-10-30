@@ -1,6 +1,6 @@
 # Tipid Tracker
 
-Lahat ng promo, isang lugar.
+Lahat ng promo, nandito na.
 
 Tipid Tracker is a website for shoppers in the Philippines that collects current deals and promos (online shopping, groceries, flights, bank card promos) into one place. Browse by category and sort by promo start and end dates.
 

@@ -6,6 +6,9 @@ const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP'
 
 export default function DealCard({ deal, category }: { deal: Deal; category?: Category }) {
   const [copied, setCopied] = useState(false)
+  const [imgFailed, setImgFailed] = useState(false)
+  const [imgLoaded, setImgLoaded] = useState(false)
+  const showImg = Boolean(deal.image_url) && !imgFailed
   const timing = dealTiming(deal.promo_start, deal.promo_end)
   const urgent = timing.kind === 'active' && timing.daysLeft !== null && timing.daysLeft <= 2
   const isReddit = deal.credit?.includes('r/')
@@ -23,6 +26,25 @@ export default function DealCard({ deal, category }: { deal: Deal; category?: Ca
 
   return (
     <article className={`card ${timing.kind}`}>
+      <div className={`photo cat-${deal.category_slug}`}>
+        <span className="photo-icon" aria-hidden>{category?.icon ?? '🏷️'}</span>
+        {showImg && (
+          <img
+            src={deal.image_url!}
+            alt={deal.title}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            className={imgLoaded ? 'loaded' : ''}
+            onLoad={() => setImgLoaded(true)}
+            onError={() => setImgFailed(true)}
+          />
+        )}
+        {deal.discount_pct !== null && deal.discount_pct > 0 && (
+          <span className="photo-off">−{Math.round(deal.discount_pct)}%</span>
+        )}
+      </div>
+
       <div className="card-top">
         <span className="chip">{category?.icon} {category?.name ?? deal.category_slug}</span>
         <span className={`timing ${timing.kind} ${urgent ? 'urgent' : ''}`}>{timingLabel(timing)}</span>
@@ -35,9 +57,6 @@ export default function DealCard({ deal, category }: { deal: Deal; category?: Ca
         <div className="price-row">
           {deal.price !== null && <span className="price">{peso.format(deal.price)}</span>}
           {deal.original_price !== null && <s className="was">{peso.format(deal.original_price)}</s>}
-          {deal.discount_pct !== null && deal.discount_pct > 0 && (
-            <span className="off">−{Math.round(deal.discount_pct)}%</span>
-          )}
         </div>
       )}
 

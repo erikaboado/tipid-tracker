@@ -96,7 +96,36 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
   padding: 16px; display: flex; flex-direction: column; gap: 8px; position: relative;
 }
+.card { overflow: hidden; }
 .card.upcoming { border-style: dashed; }
+
+/* Photo area: product photo when available, category placeholder otherwise */
+.photo {
+  margin: -16px -16px 4px; aspect-ratio: 16 / 10; position: relative; display: grid; place-items: center;
+  background: var(--photo-bg, var(--chip)); border-bottom: 1px solid var(--line);
+}
+.photo img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff;
+  opacity: 0; transition: opacity 0.2s ease;
+}
+.photo img.loaded { opacity: 1; }
+.photo-icon { font-size: 56px; line-height: 1; filter: saturate(1.1); transform: rotate(-6deg); }
+.photo-off {
+  position: absolute; top: 10px; left: 10px; background: var(--accent); color: #fff; font-weight: 800;
+  font-size: 13px; padding: 3px 8px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.cat-groceries { --photo-bg: #e3f1d8; }
+.cat-fashion { --photo-bg: #f6dfe4; }
+.cat-gadgets { --photo-bg: #dde6f6; }
+.cat-home { --photo-bg: #f3e6d2; }
+.cat-travel { --photo-bg: #d6eef2; }
+.cat-food { --photo-bg: #fbe3cf; }
+.cat-beauty { --photo-bg: #eedff3; }
+.cat-bank { --photo-bg: #e5e8dc; }
+@media (prefers-color-scheme: dark) {
+  .photo { --photo-bg: #263029; }
+  .photo img { background: #fff; }
+}
 .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .chip { background: var(--chip); border-radius: 999px; padding: 3px 9px; font-size: 12px; font-weight: 500; }
 .timing { font-size: 12px; font-weight: 600; color: var(--brand); }

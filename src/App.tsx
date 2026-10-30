@@ -53,7 +53,7 @@ export default function App() {
             <span className="brand-mark" aria-hidden>₱</span>
             <span>
               <span className="brand-name">Tipid Tracker</span>
-              <span className="brand-tag">Lahat ng promo, isang lugar.</span>
+              <span className="brand-tag">Lahat ng promo, nandito na.</span>
             </span>
           </a>
           <nav className="tabs" aria-label="Main">

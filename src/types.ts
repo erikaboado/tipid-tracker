@@ -36,3 +36,26 @@ export type Deal = {
 
 export type SortKey = 'ending' | 'newest' | 'upcoming' | 'discount'
 export type StatusFilter = 'active' | 'upcoming' | 'all'
+
+export type SubmissionStatus = 'pending' | 'approved' | 'rejected'
+
+export type SubmissionRow = {
+  id: string
+  title: string
+  url: string
+  category_slug: string | null
+  merchant: string | null
+  price: number | null
+  original_price: number | null
+  promo_code: string | null
+  promo_start: string | null
+  promo_end: string | null
+  valid_start: string | null
+  valid_end: string | null
+  image_url: string | null
+  notes: string | null
+  status: SubmissionStatus
+  created_at: string
+  reviewed_at: string | null
+  deal_id: string | null
+}

@@ -48,3 +48,15 @@ export function timingLabel(t: DealTiming): string {
   if (t.daysLeft === 1) return 'Ends tomorrow'
   return `${t.daysLeft} days left`
 }
+
+// Both ranges must run forwards; the database rejects them otherwise.
+export function checkRanges(
+  promoStart: string | null,
+  promoEnd: string | null,
+  validStart: string | null,
+  validEnd: string | null,
+): string | null {
+  if (promoStart && promoEnd && promoEnd < promoStart) return 'The promo end date is before its start date.'
+  if (validStart && validEnd && validEnd < validStart) return 'The valid / travel end date is before its start date.'
+  return null
+}

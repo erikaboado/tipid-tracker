@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import type { Category } from '../types'
 import { submitDeal } from '../lib/api'
-import { todayPH } from '../lib/dates'
+import { checkRanges, todayPH } from '../lib/dates'
 
 type State = 'idle' | 'sending' | 'sent' | 'error'
 
@@ -18,6 +18,12 @@ export default function SubmitPage({ categories }: { categories: Category[] }) {
       return v === '' ? null : v
     }
     const price = str('price')
+    const rangeError = checkRanges(str('promo_start'), str('promo_end'), str('valid_start'), str('valid_end'))
+    if (rangeError) {
+      setState('error')
+      setMessage(rangeError)
+      return
+    }
     setState('sending')
     try {
       await submitDeal({
@@ -26,7 +32,10 @@ export default function SubmitPage({ categories }: { categories: Category[] }) {
         category_slug: str('category'),
         merchant: str('merchant'),
         price: price ? Number(price) : null,
+        promo_start: str('promo_start'),
         promo_end: str('promo_end'),
+        valid_start: str('valid_start'),
+        valid_end: str('valid_end'),
         notes: str('notes'),
       })
       form.reset()
@@ -68,12 +77,24 @@ export default function SubmitPage({ categories }: { categories: Category[] }) {
           </select>
         </label>
         <label>
-          <span>Promo price (₱)</span>
-          <input name="price" type="number" min="0" step="0.01" inputMode="decimal" />
+          <span>Promo starts on</span>
+          <input name="promo_start" type="date" />
         </label>
         <label>
           <span>Promo ends on</span>
           <input name="promo_end" type="date" min={todayPH()} />
+        </label>
+        <label>
+          <span>Valid / travel from</span>
+          <input name="valid_start" type="date" />
+        </label>
+        <label>
+          <span>Valid / travel until</span>
+          <input name="valid_end" type="date" />
+        </label>
+        <label>
+          <span>Promo price (₱)</span>
+          <input name="price" type="number" min="0" step="0.01" inputMode="decimal" />
         </label>
         <label className="full">
           <span>Anything else? (mechanics, promo code, where you saw it)</span>

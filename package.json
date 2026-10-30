@@ -1,0 +1,34 @@
+{
+  "name": "tipid-tracker",
+  "version": "1.0.0",
+  "description": "Tipid Tracker – all Philippine deals and promos in one place, sorted by promo dates.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erikaboado/tipid-tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/erikaboado/tipid-tracker/issues"
+  },
+  "homepage": "https://github.com/erikaboado/tipid-tracker#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  },
+  "private": true,
+  "type": "module"
+}

@@ -1,0 +1,36 @@
+-- Run by .github/workflows/deploy-collector.yml with psql:
+--   psql "$SUPABASE_DB_URL" -v project_url=... -v cron_secret=... -f this-file
+-- Safe to run again: it updates the stored values and the existing schedule.
+\set ON_ERROR_STOP on
+
+create extension if not exists pg_cron with schema pg_catalog;
+create extension if not exists pg_net with schema extensions;
+
+-- Keep the project URL and cron secret in Vault, never in git.
+select vault.create_secret(:'project_url', 'project_url')
+where not exists (select 1 from vault.secrets where name = 'project_url');
+select vault.update_secret(id, :'project_url') from vault.secrets where name = 'project_url';
+
+select vault.create_secret(:'cron_secret', 'collector_cron_secret')
+where not exists (select 1 from vault.secrets where name = 'collector_cron_secret');
+select vault.update_secret(id, :'cron_secret') from vault.secrets where name = 'collector_cron_secret';
+
+-- cron.schedule replaces a job with the same name.
+select cron.schedule(
+  'involve-asia-collector',
+  '0 */6 * * *', -- every 6 hours (UTC)
+  $$
+  select net.http_post(
+    url := (select decrypted_secret from vault.decrypted_secrets where name = 'project_url')
+           || '/functions/v1/involve-asia-collector',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'collector_cron_secret')
+    ),
+    body := '{}'::jsonb,
+    timeout_milliseconds := 60000
+  );
+  $$
+);
+
+select jobname, schedule, active from cron.job where jobname = 'involve-asia-collector';

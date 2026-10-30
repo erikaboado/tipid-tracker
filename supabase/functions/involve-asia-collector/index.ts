@@ -1,8 +1,8 @@
 // Supabase Edge Function: pulls Philippine offers + promotions/coupons from Involve Asia
 // and upserts them into public.deals. Triggered on a schedule by pg_cron (see
-// supabase/cron/involve_asia_collector.sql). Add ?dry_run=1 to preview without writing.
+// supabase/cron/schedule_involve_asia_collector.psql). Add ?dry_run=1 to preview without writing.
 //
-// Secrets (Supabase → Edge Functions → Secrets): INVOLVE_ASIA_API_KEY, INVOLVE_ASIA_API_SECRET,
+// Secrets (set by .github/workflows/deploy-collector.yml): INVOLVE_ASIA_API_KEY, INVOLVE_ASIA_API_SECRET,
 // COLLECTOR_CRON_SECRET. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided automatically.
 
 import { createClient } from '@supabase/supabase-js'

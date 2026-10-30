@@ -1,0 +1,84 @@
+name: Deploy Involve Asia collector
+
+# Deploys the involve-asia-collector Edge Function, sets its secrets, and schedules it every 6 hours.
+# Runs when the function's code changes on main, or by hand (Actions → Deploy Involve Asia collector →
+# Run workflow). See README "Involve Asia collector" for the secrets it needs.
+
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/functions/**', 'supabase/cron/**']
+  workflow_dispatch:
+    inputs:
+      run:
+        description: After deploying, call the collector
+        type: choice
+        options: [dry run (writes nothing), real run (adds deals)]
+        default: dry run (writes nothing)
+
+concurrency:
+  group: deploy-collector
+  cancel-in-progress: false
+
+env:
+  # Not a secret: it's part of the public Supabase URL the website already uses.
+  PROJECT_REF: lmdubaodhvpwipsqtvoq
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      INVOLVE_ASIA_API_KEY: ${{ secrets.INVOLVE_ASIA_API_KEY }}
+      INVOLVE_ASIA_API_SECRET: ${{ secrets.INVOLVE_ASIA_API_SECRET }}
+      COLLECTOR_CRON_SECRET: ${{ secrets.COLLECTOR_CRON_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.0
+      # Until the secrets exist, code pushes skip the deploy quietly; a run by hand fails and says what's missing.
+      - name: Check secrets
+        id: secrets
+        run: |
+          missing=0
+          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_URL INVOLVE_ASIA_API_KEY INVOLVE_ASIA_API_SECRET COLLECTOR_CRON_SECRET; do
+            if [ -z "${!name}" ]; then
+              echo "::warning::Add the $name repository secret (see README 'Involve Asia collector')."
+              missing=1
+            fi
+          done
+          echo "ready=$([ $missing = 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          if [ $missing = 1 ] && [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then exit 1; fi
+      - name: Set function secrets
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          supabase secrets set --project-ref "$PROJECT_REF" \
+            INVOLVE_ASIA_API_KEY="$INVOLVE_ASIA_API_KEY" \
+            INVOLVE_ASIA_API_SECRET="$INVOLVE_ASIA_API_SECRET" \
+            COLLECTOR_CRON_SECRET="$COLLECTOR_CRON_SECRET"
+      # --no-verify-jwt is intentional: the function checks the x-cron-secret header instead.
+      - name: Deploy function
+        if: steps.secrets.outputs.ready == 'true'
+        run: supabase functions deploy involve-asia-collector --project-ref "$PROJECT_REF" --no-verify-jwt --use-api
+      - name: Schedule every 6 hours
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          psql "$SUPABASE_DB_URL" -q \
+            -v project_url="https://$PROJECT_REF.supabase.co" \
+            -v cron_secret="$COLLECTOR_CRON_SECRET" \
+            -f supabase/cron/schedule_involve_asia_collector.psql
+      - name: Call the collector
+        if: steps.secrets.outputs.ready == 'true' && github.event_name == 'workflow_dispatch'
+        env:
+          RUN_CHOICE: ${{ inputs.run }}
+        run: |
+          query=""
+          case "$RUN_CHOICE" in real*) ;; *) query="?dry_run=1" ;; esac
+          status=$(curl -sS -o response.json -w '%{http_code}' -X POST \
+            "https://$PROJECT_REF.supabase.co/functions/v1/involve-asia-collector$query" \
+            -H "x-cron-secret: $COLLECTOR_CRON_SECRET" -H 'Content-Type: application/json' -d '{}')
+          echo "HTTP $status"
+          jq . response.json || cat response.json
+          [ "$status" = 200 ]

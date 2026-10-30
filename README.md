@@ -41,24 +41,24 @@ Skipped: expired promos, evergreen banners with no code and no end date, and any
 
 Involve Asia doesn't publish its response field names, so the mapper tries a few likely names per value (`FIELDS` in `mapper.ts`). Do a dry run first (step 5) and adjust if the real names differ.
 
-**Setup**
+**Setup** (no command line needed; a GitHub Action does the deploy)
 1. Get API access: Involve Asia dashboard → Profile → Tools → API → **Request API Key** (approval takes up to 48 working hours). Copy the API Key and API Secret.
-2. Install the [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started), then `supabase login` and `supabase link --project-ref YOUR-PROJECT-REF`.
-3. Apply the new migration (adds the `other` category): `supabase db push`, or paste `supabase/migrations/0002_other_category.sql` into the SQL editor.
-4. Set secrets and deploy:
-   ```bash
-   cp supabase/functions/.env.example supabase/functions/.env   # fill in real values; this file is gitignored
-   supabase secrets set --env-file supabase/functions/.env
-   supabase functions deploy involve-asia-collector --no-verify-jwt
-   ```
-   `--no-verify-jwt` is intentional: the function instead checks the `x-cron-secret` header against `COLLECTOR_CRON_SECRET`.
-5. Dry run (fetches and maps, writes nothing, shows the feed's field names and 5 sample rows):
-   ```bash
-   curl -X POST "https://YOUR-PROJECT-REF.supabase.co/functions/v1/involve-asia-collector?dry_run=1" \
-     -H "x-cron-secret: YOUR-COLLECTOR_CRON_SECRET"
-   ```
-   Drop `?dry_run=1` to do a real run.
-6. Schedule it: follow `supabase/cron/involve_asia_collector.sql` in the SQL editor (enables pg_cron + pg_net, stores the URL and secret in Vault, schedules every 6 hours).
+2. Create a Supabase access token: [supabase.com/dashboard/account/tokens](https://supabase.com/dashboard/account/tokens) → **Generate new token**.
+3. In GitHub, repo **Settings → Secrets and variables → Actions**, add these repository secrets (next to `SUPABASE_DB_URL` from [Database migrations](#database-migrations)):
+
+   | Name | Value |
+   | --- | --- |
+   | `SUPABASE_ACCESS_TOKEN` | the token from step 2 |
+   | `INVOLVE_ASIA_API_KEY` | API Key from step 1 |
+   | `INVOLVE_ASIA_API_SECRET` | API Secret from step 1 |
+   | `COLLECTOR_CRON_SECRET` | any long random string (e.g. a password-manager password, letters and numbers) |
+
+4. Actions → **Deploy Involve Asia collector** → **Run workflow**, leaving "dry run". It sets the function's secrets, deploys it, schedules it every 6 hours with pg_cron (`supabase/cron/schedule_involve_asia_collector.psql`), and does a dry run that writes nothing. The run log shows the feed's field names and 5 sample deals.
+5. If the sample deals look right, run the workflow again with **real run** to add deals now. After that the schedule keeps them fresh, and the workflow redeploys by itself whenever the function's code changes on `main`.
+
+Check runs in the SQL editor:
+`select * from cron.job_run_details where jobid = (select jobid from cron.job where jobname = 'involve-asia-collector') order by start_time desc limit 10;`
+Stop it: `select cron.unschedule('involve-asia-collector');`
 
 **Tests** (no API key needed; they use sample responses in `fixtures/`): install [Deno](https://deno.com) and run `npm run test:functions`.
 

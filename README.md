@@ -37,8 +37,28 @@ delete from public.deals where is_sample;
 
 Never commit `.env` or any secret / service-role key. `.env` is already in `.gitignore`.
 
-## Deploy
-Works on any static host (Vercel, Netlify, Cloudflare Pages). Build command `npm run build`, output folder `dist`, and add the two `VITE_SUPABASE_*` environment variables in the host's settings.
+## Deploy to Vercel (free Hobby plan)
+The repo is ready for Vercel: `vercel.json` sets the build command (`npm run build`), the output folder (`dist`) and a rewrite so any page path serves the app instead of a 404 on refresh.
+
+1. Sign in at [vercel.com](https://vercel.com) with your GitHub account.
+2. Click **Add New… → Project**, find `erikaboado/tipid-tracker` and click **Import**. (If it isn't listed, click **Adjust GitHub App Permissions** and give Vercel access to the repo.)
+3. Leave Framework Preset as **Vite**; the build settings come from `vercel.json`.
+4. Open **Environment Variables** and add both, for Production, Preview and Development:
+
+   | Name | Value |
+   | --- | --- |
+   | `VITE_SUPABASE_URL` | your project URL, e.g. `https://your-project-ref.supabase.co` |
+   | `VITE_SUPABASE_PUBLISHABLE_KEY` | your **publishable** key (`sb_publishable_…`) |
+
+   Both are in Supabase → Project Settings → API. Use the publishable key only. Never paste the secret / service-role key into Vercel or any `VITE_` variable, because every `VITE_` value is bundled into the public JavaScript.
+5. Click **Deploy**. You'll get a `*.vercel.app` URL in about a minute.
+
+After that, every push to `main` redeploys production and every pull request gets its own preview URL. If you change an environment variable later, redeploy (Deployments → ⋯ → Redeploy) because the values are baked in at build time. If the site shows "Supabase is not configured", the variables are missing or misspelled.
+
+The app also works on other static hosts (Netlify, Cloudflare Pages) with the same build command, output folder and variables.
+
+## Checks
+GitHub Actions (`.github/workflows/ci.yml`) runs `npm run typecheck` and `npm run build` on every pull request and push to `main`. Run the same locally with `npm run typecheck && npm run build`.
 
 ## Status
 In development.

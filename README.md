@@ -8,6 +8,7 @@ Tipid Tracker is a website for shoppers in the Philippines that collects current
 - **Deals page**: category filters, search, "Active now / Upcoming" filter, sort by ending soonest, starting soonest, newest or biggest discount.
 - **Sale calendar**: 11.11, 12.12, payday (kinsenas / katapusan) and holiday sales with countdowns, plus deals ending this week.
 - **Submit a deal**: visitors can share promos; submissions go into a review queue and never appear directly on the site.
+- **Admin review** (`#/admin`): signed-in admins edit, approve or reject submissions. Approving publishes the deal.
 - Two date ranges per deal: **promo period** (when you can buy) and **valid / travel period** (when you can use it).
 
 ## Data sources
@@ -63,7 +64,7 @@ Involve Asia doesn't publish its response field names, so the mapper tries a few
 
 ## Tech
 - React + TypeScript + Vite
-- Supabase (Postgres) with row-level security: visitors can read deals and add pending submissions; only the backend can write deals.
+- Supabase (Postgres) with row-level security: visitors can read deals and add pending submissions; only the backend can write deals. Admins approve submissions through the `approve_submission()` database function, so no secret key is ever in the browser.
 - Schema: `supabase/migrations/`, starter data: `supabase/seed.sql`
 
 ## Run it locally
@@ -77,6 +78,23 @@ Involve Asia doesn't publish its response field names, so the mapper tries a few
 4. Open http://localhost:5173
 
 Never commit `.env`, `supabase/functions/.env` or any secret / service-role / API key. Both are already in `.gitignore`.
+
+## Admin access
+Admins sign in at `/#/admin` with a Supabase Auth email and password. An account is an admin only if its user id is in the `public.admins` table, which the browser cannot read or change.
+
+To make the first admin:
+1. Apply the migrations in `supabase/migrations/` (Supabase CLI `supabase db push`, or paste each file into the SQL editor in order).
+2. In Supabase → Authentication → Users, click **Add user → Create new user**, enter the email and a strong password, and tick **Auto Confirm User**.
+3. In Supabase → SQL Editor, run:
+   ```sql
+   insert into public.admins (user_id)
+   select id from auth.users where email = 'you@example.com';
+   ```
+4. Open `/#/admin` and sign in.
+
+Add more admins the same way. To remove one: `delete from public.admins where user_id = (select id from auth.users where email = '...');`
+
+Only admins can do anything on the admin page, but you can also turn off public sign-ups (Authentication → Sign In / Providers → **Allow new users to sign up**) so no one else can create an account.
 
 ## Deploy to Vercel (free Hobby plan)
 The repo is ready for Vercel: `vercel.json` sets the build command (`npm run build`), the output folder (`dist`) and a rewrite so any page path serves the app instead of a 404 on refresh.

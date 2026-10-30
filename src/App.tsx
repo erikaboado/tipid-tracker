@@ -5,12 +5,13 @@ import type { Category, Deal, SaleEvent } from './types'
 import DealsPage from './components/DealsPage'
 import CalendarPage from './components/CalendarPage'
 import SubmitPage from './components/SubmitPage'
+import AdminPage from './components/AdminPage'
 
-type Tab = 'deals' | 'calendar' | 'submit'
+type Tab = 'deals' | 'calendar' | 'submit' | 'admin'
 
 function readTab(): Tab {
   const h = window.location.hash.replace('#/', '')
-  return h === 'calendar' || h === 'submit' ? h : 'deals'
+  return h === 'calendar' || h === 'submit' || h === 'admin' ? h : 'deals'
 }
 
 export default function App() {
@@ -76,6 +77,7 @@ export default function App() {
         {!loading && !error && tab === 'deals' && <DealsPage categories={categories} deals={deals} events={events} />}
         {!loading && !error && tab === 'calendar' && <CalendarPage deals={deals} events={events} categories={categories} />}
         {!loading && !error && tab === 'submit' && <SubmitPage categories={categories} />}
+        {!loading && !error && tab === 'admin' && <AdminPage categories={categories} />}
       </main>
 
       <footer className="footer">

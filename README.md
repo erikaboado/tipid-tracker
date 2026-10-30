@@ -83,7 +83,7 @@ Never commit `.env`, `supabase/functions/.env` or any secret / service-role / AP
 Admins sign in at `/#/admin` with a Supabase Auth email and password. An account is an admin only if its user id is in the `public.admins` table, which the browser cannot read or change.
 
 To make the first admin:
-1. Apply the migrations in `supabase/migrations/` (Supabase CLI `supabase db push`, or paste each file into the SQL editor in order).
+1. Apply the migrations in `supabase/migrations/` (automatic once [Database migrations](#database-migrations) is set up, or paste each file into the SQL editor in order).
 2. In Supabase → Authentication → Users, click **Add user → Create new user**, enter the email and a strong password, and tick **Auto Confirm User**.
 3. In Supabase → SQL Editor, run:
    ```sql
@@ -115,6 +115,16 @@ The repo is ready for Vercel: `vercel.json` sets the build command (`npm run bui
 After that, every push to `main` redeploys production and every pull request gets its own preview URL. If you change an environment variable later, redeploy (Deployments → ⋯ → Redeploy) because the values are baked in at build time. If the site shows "Supabase is not configured", the variables are missing or misspelled.
 
 The app also works on other static hosts (Netlify, Cloudflare Pages) with the same build command, output folder and variables.
+
+## Database migrations
+New files in `supabase/migrations/` are applied to the live database automatically when they land on `main`, by GitHub Actions (`.github/workflows/migrate.yml`, which runs `supabase db push`). Vercel only deploys the website, so this workflow is what updates the database. It may finish a minute after the site deploys. You can also run it by hand from Actions → **Migrate database** → **Run workflow**.
+
+One-time setup:
+1. In Supabase, click **Connect** at the top of the project, choose **Session pooler**, and copy the URI (`postgresql://postgres.<ref>:[YOUR-PASSWORD]@aws-…pooler.supabase.com:5432/postgres`). Put in your database password; if it contains symbols like `@ # / ?`, reset it in Project Settings → Database to one with only letters and numbers, or URL-encode it. Use the session pooler, not the direct connection, because GitHub's runners can't reach the direct IPv6 address.
+2. In GitHub, go to the repo's **Settings → Secrets and variables → Actions → New repository secret**, name it `SUPABASE_DB_URL` and paste the URI.
+3. In the Supabase SQL Editor, run [`supabase/manual/record_existing_migrations.sql`](supabase/manual/record_existing_migrations.sql) once. It records the migrations that were applied by hand so the workflow doesn't try to run them again.
+
+New migration files need a higher number than the last one (`0005_…`, `0006_…`). Once applied, don't edit a migration; add a new one instead.
 
 ## Checks
 GitHub Actions (`.github/workflows/ci.yml`) runs `npm run typecheck` and `npm run build` on every pull request and push to `main`. Run the same locally with `npm run typecheck && npm run build`.

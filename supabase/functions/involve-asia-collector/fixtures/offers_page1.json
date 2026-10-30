@@ -1,0 +1,30 @@
+{
+  "status": "success",
+  "message": "Success",
+  "data": {
+    "page": 1,
+    "limit": 100,
+    "count": 3,
+    "nextPage": 2,
+    "data": [
+      {
+        "offer_id": 101,
+        "offer_name": "Lazada PH (CPS)",
+        "categories": "Marketplace, Electronics",
+        "offer_country": "Philippines",
+        "offer_status": "Active",
+        "logo": "https://img.example-cdn.com/offers/lazada.png",
+        "tracking_link": "https://invol.co/aff_m?offer_id=101&aff_id=1"
+      },
+      {
+        "offer_id": 202,
+        "offer_name": "Klook PH",
+        "categories": ["Travel & Tours"],
+        "offer_country": "Philippines",
+        "offer_status": "Active",
+        "logo": "https://img.example-cdn.com/offers/klook.png",
+        "tracking_link": "https://invol.co/aff_m?offer_id=202&aff_id=1"
+      }
+    ]
+  }
+}

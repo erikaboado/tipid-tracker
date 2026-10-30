@@ -122,6 +122,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .cat-food { --photo-bg: #fbe3cf; }
 .cat-beauty { --photo-bg: #eedff3; }
 .cat-bank { --photo-bg: #e5e8dc; }
+.cat-other { --photo-bg: #ecebe6; }
 @media (prefers-color-scheme: dark) {
   .photo { --photo-bg: #263029; }
   .photo img { background: #fff; }

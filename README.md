@@ -8,7 +8,7 @@ Tipid Tracker is a website for shoppers in the Philippines that collects current
 - **Deals page**: category filters, search, "Active now / Upcoming" filter, sort by ending soonest, starting soonest, newest or biggest discount.
 - **Sale calendar**: 11.11, 12.12, payday (kinsenas / katapusan) and holiday sales with countdowns, plus deals ending this week.
 - **Submit a deal**: visitors can share promos; submissions go into a review queue and never appear directly on the site.
-- **Admin review** (`#/admin`): signed-in admins edit, approve or reject submissions. Approving publishes the deal.
+- **Admin** (`#/admin`): signed-in admins add, edit and delete deals by hand, clear the sample deals, and edit, approve or reject submissions. Approving publishes the deal. Hand-added deals use the category picture, since product photos come only from affiliate feeds.
 - Two date ranges per deal: **promo period** (when you can buy) and **valid / travel period** (when you can use it).
 
 ## Data sources
@@ -64,7 +64,7 @@ Involve Asia doesn't publish its response field names, so the mapper tries a few
 
 ## Tech
 - React + TypeScript + Vite
-- Supabase (Postgres) with row-level security: visitors can read deals and add pending submissions; only the backend can write deals. Admins approve submissions through the `approve_submission()` database function, so no secret key is ever in the browser.
+- Supabase (Postgres) with row-level security: visitors can read deals and add pending submissions; only the backend can write deals. Admins approve submissions through the `approve_submission()` database function and manage deals through `admin_save_deal()`, `admin_delete_deal()` and `admin_clear_sample_deals()`, so no secret key is ever in the browser.
 - Schema: `supabase/migrations/`, starter data: `supabase/seed.sql`
 
 ## Run it locally

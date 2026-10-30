@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { fetchAll } from './lib/api'
 import { isConfigured } from './lib/supabase'
 import type { Category, Deal, SaleEvent } from './types'
@@ -28,13 +28,13 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!isConfigured) {
       setError('Supabase is not configured. Copy .env.example to .env and fill in your project URL and publishable key.')
       setLoading(false)
-      return
+      return Promise.resolve()
     }
-    fetchAll()
+    return fetchAll()
       .then((r) => {
         setCategories(r.categories)
         setDeals(r.deals)
@@ -43,6 +43,10 @@ export default function App() {
       .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    load()
+  }, [load])
 
   const hasSamples = deals.some((d) => d.is_sample)
 
@@ -77,7 +81,7 @@ export default function App() {
         {!loading && !error && tab === 'deals' && <DealsPage categories={categories} deals={deals} events={events} />}
         {!loading && !error && tab === 'calendar' && <CalendarPage deals={deals} events={events} categories={categories} />}
         {!loading && !error && tab === 'submit' && <SubmitPage categories={categories} />}
-        {!loading && !error && tab === 'admin' && <AdminPage categories={categories} />}
+        {!loading && !error && tab === 'admin' && <AdminPage categories={categories} deals={deals} events={events} onDealsChanged={load} />}
       </main>
 
       <footer className="footer">

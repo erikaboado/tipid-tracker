@@ -96,3 +96,52 @@ export async function setSubmissionStatus(id: string, status: 'pending' | 'rejec
   const { error } = await client().from('submissions').update({ status }).eq('id', id)
   if (error) throw error
 }
+
+// Hand-entered deals. Writes go through admin_* database functions that check is_admin().
+
+export type DealInput = {
+  title: string
+  merchant: string
+  category_slug: string
+  url: string
+  sale_event_id: string | null
+  price: number | null
+  original_price: number | null
+  promo_code: string | null
+  promo_start: string | null
+  promo_end: string | null
+  valid_start: string | null
+  valid_end: string | null
+}
+
+// Creates the deal when id is null, otherwise updates it. Returns the deal id.
+export async function saveDeal(id: string | null, d: DealInput): Promise<string> {
+  const { data, error } = await client().rpc('admin_save_deal', {
+    p_id: id,
+    p_title: d.title,
+    p_merchant: d.merchant,
+    p_category_slug: d.category_slug,
+    p_url: d.url,
+    p_sale_event_id: d.sale_event_id,
+    p_price: d.price,
+    p_original_price: d.original_price,
+    p_promo_code: d.promo_code,
+    p_promo_start: d.promo_start,
+    p_promo_end: d.promo_end,
+    p_valid_start: d.valid_start,
+    p_valid_end: d.valid_end,
+  })
+  if (error) throw error
+  return data as string
+}
+
+export async function deleteDeal(id: string): Promise<void> {
+  const { error } = await client().rpc('admin_delete_deal', { p_id: id })
+  if (error) throw error
+}
+
+export async function clearSampleDeals(): Promise<number> {
+  const { data, error } = await client().rpc('admin_clear_sample_deals')
+  if (error) throw error
+  return data as number
+}
